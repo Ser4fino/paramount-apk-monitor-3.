@@ -1,0 +1,43 @@
+
+name: Test APKMirror
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verifica accesso APKMirror
+        run: |
+          python3 - <<'PY'
+          import urllib.request
+          import urllib.error
+
+          url = "https://www.apkmirror.com/apk/cbs-interactive-inc/paramount-2/"
+
+          request = urllib.request.Request(
+              url,
+              headers={
+                  "User-Agent": "Mozilla/5.0",
+                  "Accept": "text/html",
+                  "Accept-Language": "en-US,en;q=0.9"
+              }
+          )
+
+          try:
+              with urllib.request.urlopen(request, timeout=20) as response:
+                  html = response.read().decode("utf-8", errors="replace")
+                  print("HTTP:", response.status)
+                  print("Lunghezza pagina:", len(html))
+                  print("Contiene 17.2.0:", "17.2.0" in html)
+                  print("Contiene com.cbs.ott:", "com.cbs.ott" in html)
+
+          except urllib.error.HTTPError as error:
+              print("HTTP:", error.code)
+              print("Accesso non riuscito")
+
+          except Exception as error:
+              print("Errore:", str(error))
+          PY
